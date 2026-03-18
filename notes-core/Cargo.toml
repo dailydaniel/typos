@@ -11,6 +11,7 @@ serde_json = "1"
 thiserror = "2"
 chrono = { version = "0.4", features = ["serde"] }
 slug = "0.1"
+notify = "7"
 
 # Компиляция (Phase 5 — пока закомментировано)
 # typst = "0.14"

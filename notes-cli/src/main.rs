@@ -51,6 +51,12 @@ pub enum Commands {
         #[arg(long, default_value = "table")]
         format: String,
     },
+    /// Watch a note and recompile on changes
+    Watch {
+        file: String,
+        #[arg(long, default_value = "html")]
+        format: String,
+    },
     /// Compile vault graph
     Graph {
         #[arg(long, default_value = "html")]
@@ -71,6 +77,7 @@ fn main() {
         Commands::Compile { file, format, output } => {
             commands::compile(&file, &format, output.as_deref())
         }
+        Commands::Watch { file, format } => commands::watch(&file, &format),
         Commands::Search { query, r#type } => commands::search(&query, r#type.as_deref()),
         Commands::Backlinks { id } => commands::backlinks(&id),
         Commands::List { r#type, format } => commands::list(r#type.as_deref(), &format),

@@ -22,15 +22,19 @@ typst-notes/
 ## Installation
 
 ```bash
-# Build the CLI
-cargo build --release
-# Binary is at target/release/notes
+# Install the CLI globally (requires Rust toolchain)
+cargo install --path notes-cli
+
+# The `notes` command is now available everywhere
+notes --help
 
 # Install the Typst framework as a local package
 # macOS:
-cp -r notes-framework/ ~/Library/Application\ Support/typst/packages/local/notes/0.1.0/
+cp -r notes-framework/src/ ~/Library/Application\ Support/typst/packages/local/notes/0.1.0/src/
+cp notes-framework/typst.toml ~/Library/Application\ Support/typst/packages/local/notes/0.1.0/
 # Linux:
-cp -r notes-framework/ ~/.local/share/typst/packages/local/notes/0.1.0/
+cp -r notes-framework/src/ ~/.local/share/typst/packages/local/notes/0.1.0/src/
+cp notes-framework/typst.toml ~/.local/share/typst/packages/local/notes/0.1.0/
 ```
 
 ## CLI Usage
@@ -121,10 +125,23 @@ Scans `notes/*.typ`, updates `note-paths.csv`, rebuilds the index.
 ### Compile notes
 
 ```bash
-typst compile --root . notes/programming--rust--closures.typ
+notes compile notes/programming--rust--closures.typ              # → assets/current.html
+notes compile notes/programming--rust--closures.typ --format pdf  # → assets/current.pdf
+notes compile notes/welcome.typ -o out.pdf --format pdf           # → custom path
 ```
 
-Compilation uses the standard `typst` CLI. The `--root .` flag is needed so notes can import `vault.typ` from the vault root. Each compiled note includes a metadata header block (type, id, parent, custom fields) and backlinks at the bottom.
+Default output is `assets/current.html`. Before compiling, the index is automatically rebuilt if any `.typ` files have changed.
+
+Each compiled note includes a metadata header block (title, type, id, parent, custom fields) and backlinks at the bottom.
+
+### Watch mode
+
+```bash
+notes watch notes/welcome.typ              # → assets/current.html, live reload
+notes watch notes/welcome.typ --format pdf  # → assets/current.pdf
+```
+
+Watches the vault for `.typ` file changes and recompiles automatically. On each change: reindex if stale → recompile → write output. Useful with Tauri or a browser for live preview.
 
 ## Writing Notes
 
@@ -189,10 +206,10 @@ The user's `vault.typ` ties it together:
 
 ## Roadmap
 
-- [ ] **Programmatic compilation** — `notes compile` via the `typst` Rust crate (World trait)
+- [x] **Compile & watch** — `notes compile` and `notes watch` via typst subprocess
+- [ ] **Programmatic compilation** — replace subprocess with `typst` Rust crate (World trait)
 - [ ] **Tauri app** — desktop GUI with editor, preview, search (Svelte + Vite)
 - [ ] **iOS support** — via Tauri v2 mobile
-- [ ] **Watch mode** — `notes watch` for auto-reindexing on file changes
 - [ ] **Graphviz rendering** — `diagraph` integration for visual knowledge graphs
 - [ ] **Incremental indexing** — skip unchanged files based on mtime
 - [ ] **Parallel parsing** — `rayon` for large vaults

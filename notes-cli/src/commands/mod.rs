@@ -56,9 +56,39 @@ pub fn sync() -> Result<(), NotesError> {
     Ok(())
 }
 
-pub fn compile(_file: &str, _format: &str, _output: Option<&str>) -> Result<(), NotesError> {
-    // Phase 5: requires typst crate + World trait
-    eprintln!("Compile is not yet implemented (Phase 5)");
+pub fn compile(file: &str, format: &str, output: Option<&str>) -> Result<(), NotesError> {
+    let mut vault = open_vault()?;
+    let note_path = vault.config.root.join(file);
+
+    if !note_path.exists() {
+        return Err(NotesError::NoteNotFound(file.to_string()));
+    }
+
+    let output_path = match output {
+        Some(p) => std::path::PathBuf::from(p),
+        None => vault.default_output_path(format),
+    };
+
+    let reindexed = vault.reindex_if_stale()?;
+    if reindexed {
+        eprintln!("Index updated.");
+    }
+
+    vault.compile_note(&note_path, &output_path, format)?;
+    println!("Compiled {} → {}", file, output_path.display());
+    Ok(())
+}
+
+pub fn watch(file: &str, format: &str) -> Result<(), NotesError> {
+    let mut vault = open_vault()?;
+    let note_path = vault.config.root.join(file);
+
+    if !note_path.exists() {
+        return Err(NotesError::NoteNotFound(file.to_string()));
+    }
+
+    let output_path = vault.default_output_path(format);
+    vault.watch_and_compile(&note_path, &output_path, format)?;
     Ok(())
 }
 
@@ -76,12 +106,7 @@ pub fn search(query: &str, note_type: Option<&str>) -> Result<(), NotesError> {
     }
 
     for note in &results {
-        let tags = if note.tags.is_empty() {
-            String::new()
-        } else {
-            format!(" [{}]", note.tags.join(", "))
-        };
-        println!("  {} — {}{}", note.id, note.title, tags);
+        println!("  {} — {} ({})", note.id, note.title, note.note_type);
     }
     println!("{} result(s)", results.len());
     Ok(())

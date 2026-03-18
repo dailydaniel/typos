@@ -24,8 +24,11 @@ impl Vault {
                 results.push(note.clone());
                 continue;
             }
-            // Search in tags
-            if note.tags.iter().any(|t| t.to_lowercase().contains(&query_lower)) {
+            // Search in extra fields (including tags)
+            let extra_match = note.extra.values().any(|v| {
+                v.to_string().to_lowercase().contains(&query_lower)
+            });
+            if extra_match {
                 results.push(note.clone());
                 continue;
             }

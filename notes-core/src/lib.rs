@@ -8,3 +8,5 @@ pub mod index;
 pub mod sync;
 pub mod query;
 pub mod graph;
+pub mod compiler;
+pub mod watch;

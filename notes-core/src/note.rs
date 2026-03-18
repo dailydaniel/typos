@@ -58,7 +58,6 @@ impl Vault {
             title,
             note_type: note_type.to_string(),
             parent,
-            tags: Vec::new(),
             created: Some(chrono::Utc::now().to_rfc3339()),
             path: rel_path,
             extra: extra_fields

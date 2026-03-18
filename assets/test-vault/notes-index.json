@@ -1,13 +1,12 @@
 {
   "version": 1,
-  "generated_at": "2026-03-18T16:44:21.098715+00:00",
+  "generated_at": "2026-03-18T17:02:10.010673+00:00",
   "notes": [
     {
       "id": "welcome",
       "title": "Welcome",
       "type": "note",
       "parent": null,
-      "tags": [],
       "created": null,
       "path": "notes/welcome.typ"
     },
@@ -16,7 +15,6 @@
       "title": "programming",
       "type": "note",
       "parent": null,
-      "tags": [],
       "created": null,
       "path": "notes/programming.typ"
     },
@@ -25,7 +23,6 @@
       "title": "rust",
       "type": "note",
       "parent": "programming",
-      "tags": [],
       "created": null,
       "path": "notes/programming--rust.typ"
     },
@@ -34,7 +31,6 @@
       "title": "closures",
       "type": "card",
       "parent": "programming/rust",
-      "tags": [],
       "created": null,
       "path": "notes/programming--rust--closures.typ",
       "tags": [
@@ -48,7 +44,6 @@
       "title": "traits",
       "type": "note",
       "parent": "programming/rust",
-      "tags": [],
       "created": null,
       "path": "notes/programming--rust--traits.typ"
     },
@@ -57,7 +52,6 @@
       "title": "python",
       "type": "note",
       "parent": "programming",
-      "tags": [],
       "created": null,
       "path": "notes/programming--python.typ"
     },
@@ -66,7 +60,6 @@
       "title": "Build MVP",
       "type": "task",
       "parent": null,
-      "tags": [],
       "created": null,
       "path": "notes/build-mvp.typ"
     }
@@ -74,7 +67,7 @@
   "links": [
     {
       "source": "programming/rust/closures",
-      "target": "programming/python",
+      "target": "programming/rust",
       "source_path": "notes/programming--rust--closures.typ"
     },
     {

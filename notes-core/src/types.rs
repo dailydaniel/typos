@@ -9,7 +9,6 @@ pub struct NoteMetadata {
     #[serde(rename = "type")]
     pub note_type: String,
     pub parent: Option<String>,
-    pub tags: Vec<String>,
     pub created: Option<String>,
     pub path: String,
     #[serde(flatten)]
