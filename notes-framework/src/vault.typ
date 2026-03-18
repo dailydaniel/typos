@@ -25,7 +25,8 @@
   let idx = read-index(index)
   let note-state = state("notes-current-id", none)
 
-  let _note-type(name, show-meta: true) = {
+  let _note-type(name, show-meta: true, ..rest) = {
+    // `rest` absorbs CLI-only params like `fields` — ignored by framework
     make-note-type(note-state, name, idx, show-meta: show-meta)
   }
 

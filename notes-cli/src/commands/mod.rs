@@ -1,4 +1,5 @@
 use notes_core::error::NotesError;
+use notes_core::types;
 use notes_core::vault::Vault;
 use std::env;
 use std::path::Path;
@@ -8,6 +9,23 @@ fn open_vault() -> Result<Vault, NotesError> {
     let cwd = env::current_dir().map_err(NotesError::Io)?;
     let root = Vault::discover(&cwd)?;
     Vault::open(&root)
+}
+
+/// Resolve a note argument to a relative file path.
+/// Accepts either a file path ("notes/foo.typ") or an id ("foo", "a/b/c").
+fn resolve_note_path(vault: &Vault, input: &str) -> Result<String, NotesError> {
+    // If it looks like a file path, use as-is
+    if input.ends_with(".typ") {
+        return Ok(input.to_string());
+    }
+    // Otherwise treat as id → convert to path
+    let rel_path = types::id_to_path(input);
+    let abs_path = vault.config.root.join(&rel_path);
+    if abs_path.exists() {
+        Ok(rel_path)
+    } else {
+        Err(NotesError::NoteNotFound(input.to_string()))
+    }
 }
 
 /// Discover vault and load its index.
@@ -58,11 +76,8 @@ pub fn sync() -> Result<(), NotesError> {
 
 pub fn compile(file: &str, format: &str, output: Option<&str>) -> Result<(), NotesError> {
     let mut vault = open_vault()?;
-    let note_path = vault.config.root.join(file);
-
-    if !note_path.exists() {
-        return Err(NotesError::NoteNotFound(file.to_string()));
-    }
+    let rel_path = resolve_note_path(&vault, file)?;
+    let note_path = vault.config.root.join(&rel_path);
 
     let output_path = match output {
         Some(p) => std::path::PathBuf::from(p),
@@ -75,20 +90,34 @@ pub fn compile(file: &str, format: &str, output: Option<&str>) -> Result<(), Not
     }
 
     vault.compile_note(&note_path, &output_path, format)?;
-    println!("Compiled {} → {}", file, output_path.display());
+    println!("Compiled {} → {}", rel_path, output_path.display());
     Ok(())
 }
 
 pub fn watch(file: &str, format: &str) -> Result<(), NotesError> {
     let mut vault = open_vault()?;
-    let note_path = vault.config.root.join(file);
-
-    if !note_path.exists() {
-        return Err(NotesError::NoteNotFound(file.to_string()));
-    }
+    let rel_path = resolve_note_path(&vault, file)?;
+    let note_path = vault.config.root.join(&rel_path);
 
     let output_path = vault.default_output_path(format);
     vault.watch_and_compile(&note_path, &output_path, format)?;
+    Ok(())
+}
+
+pub fn delete(id: &str) -> Result<(), NotesError> {
+    let vault = open_vault()?;
+    vault.delete_note(id)?;
+    println!("Deleted \"{}\"", id);
+    Ok(())
+}
+
+pub fn rename(old_id: &str, new_id: &str) -> Result<(), NotesError> {
+    let vault = open_vault()?;
+    let renamed = vault.rename_note(old_id, new_id)?;
+    for id in &renamed {
+        println!("  {}", id);
+    }
+    println!("Renamed {} note(s)", renamed.len());
     Ok(())
 }
 

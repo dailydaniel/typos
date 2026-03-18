@@ -5,4 +5,4 @@
   tags: ("rust", "fp", "@programming/python"),
 )
 
-See also #xlink("programming/rust").
+See also #xlink("programming/rs").

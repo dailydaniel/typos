@@ -57,7 +57,7 @@ This generates:
 ```bash
 notes new "Build MVP" --type task
 notes new "programming/rust" --type note
-notes new "programming/rust/closures" --type card
+notes new "programming/rust/closures" --type note
 notes new "programming/python"
 ```
 
@@ -122,12 +122,34 @@ notes sync
 
 Scans `notes/*.typ`, updates `note-paths.csv`, rebuilds the index.
 
-### Compile notes
+### Delete notes
 
 ```bash
-notes compile notes/programming--rust--closures.typ              # → assets/current.html
-notes compile notes/programming--rust--closures.typ --format pdf  # → assets/current.pdf
-notes compile notes/welcome.typ -o out.pdf --format pdf           # → custom path
+notes delete build-mvp
+notes delete programming/rust/closures
+```
+
+Removes the file and its CSV entry.
+
+### Rename notes
+
+```bash
+notes rename programming/rust programming/rs
+#   programming/rs
+#   programming/rs/closures
+# Renamed 2 note(s)
+```
+
+Renames the note and all children. Updates `@id` references and `#xlink("id")` calls across all notes in the vault.
+
+### Compile notes
+
+Accepts a note id or a file path:
+
+```bash
+notes compile programming/rust/closures              # by id → assets/current.html
+notes compile programming/rust/closures --format pdf  # by id → assets/current.pdf
+notes compile notes/welcome.typ -o out.pdf --format pdf  # by file path
 ```
 
 Default output is `assets/current.html`. Before compiling, the index is automatically rebuilt if any `.typ` files have changed.
@@ -137,8 +159,8 @@ Each compiled note includes a metadata header block (title, type, id, parent, cu
 ### Watch mode
 
 ```bash
-notes watch notes/welcome.typ              # → assets/current.html, live reload
-notes watch notes/welcome.typ --format pdf  # → assets/current.pdf
+notes watch welcome                       # by id → assets/current.html, live reload
+notes watch notes/welcome.typ --format pdf  # by file path → assets/current.pdf
 ```
 
 Watches the vault for `.typ` file changes and recompiles automatically. On each change: reindex if stale → recompile → write output. Useful with Tauri or a browser for live preview.
@@ -197,16 +219,19 @@ The user's `vault.typ` ties it together:
   index: json("notes-index.json"),
 )
 
-#let note = (vault.note-type)("note")
-#let task = (vault.note-type)("task")
-#let card = (vault.note-type)("card")
 #let tag  = (vault.note-type)("tag")
+#let note = (vault.note-type)("note", fields: (tags: (), links: ()))
+#let task = (vault.note-type)("task", fields: (tags: (), priority: ""))
 #let xlink = vault.xlink
 ```
+
+The optional `fields` parameter defines default fields for `notes new`. When creating a note of that type, the CLI generates these fields with their default values. The `--type` flag is validated against the types defined here.
 
 ## Roadmap
 
 - [x] **Compile & watch** — `notes compile` and `notes watch` via typst subprocess
+- [x] **Type validation** — CLI validates `--type` against vault.typ definitions, generates typed fields
+- [x] **Note rename** — `notes rename` with automatic reference updates
 - [ ] **Programmatic compilation** — replace subprocess with `typst` Rust crate (World trait)
 - [ ] **Tauri app** — desktop GUI with editor, preview, search (Svelte + Vite)
 - [ ] **iOS support** — via Tauri v2 mobile

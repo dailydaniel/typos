@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-03-18T17:02:10.010673+00:00",
+  "generated_at": "2026-03-18T21:59:51.588888+00:00",
   "notes": [
     {
       "id": "welcome",
@@ -62,6 +62,32 @@
       "parent": null,
       "created": null,
       "path": "notes/build-mvp.typ"
+    },
+    {
+      "id": "tech-report",
+      "title": "tech report",
+      "type": "report",
+      "parent": null,
+      "created": null,
+      "path": "notes/tech-report.typ"
+    },
+    {
+      "id": "tech-report",
+      "title": "tech report",
+      "type": "report",
+      "parent": null,
+      "created": null,
+      "path": "notes/tech-report.typ"
+    },
+    {
+      "id": "add-tauri-app",
+      "title": "add tauri app",
+      "type": "task",
+      "parent": null,
+      "created": null,
+      "path": "notes/add-tauri-app.typ",
+      "priority": "",
+      "tags": []
     }
   ],
   "links": [

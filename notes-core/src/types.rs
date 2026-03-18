@@ -32,6 +32,13 @@ pub struct NotesIndex {
     pub links: Vec<NoteLink>,
 }
 
+/// A note type defined in vault.typ via `(vault.note-type)("name", fields: (...))`.
+#[derive(Debug, Clone)]
+pub struct VaultType {
+    pub name: String,
+    pub fields: Vec<(String, String)>, // (field_name, default_value)
+}
+
 /// Vault configuration (paths)
 #[derive(Debug, Clone)]
 pub struct VaultConfig {

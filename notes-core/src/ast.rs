@@ -1,5 +1,5 @@
 use crate::error::NotesError;
-use crate::types::{self, NoteMetadata};
+use crate::types::{self, NoteMetadata, VaultType};
 use typst_syntax::{ast, SyntaxNode};
 
 /// Result of parsing a single .typ file
@@ -180,6 +180,113 @@ fn expr_to_json_value(expr: ast::Expr) -> Option<serde_json::Value> {
     }
 }
 
+/// Parse vault.typ source and extract all note type definitions.
+/// Finds `#let name = (vault.note-type)("type-name", fields: (...))` patterns.
+pub fn extract_vault_types(source: &str) -> Vec<VaultType> {
+    let root = typst_syntax::parse(source);
+    let mut types = Vec::new();
+    walk_for_types(&root, &mut types);
+    types
+}
+
+fn walk_for_types(node: &SyntaxNode, types: &mut Vec<VaultType>) {
+    if let Some(let_binding) = node.cast::<ast::LetBinding>() {
+        if let Some(vtype) = extract_type_from_let(let_binding) {
+            types.push(vtype);
+        }
+    }
+    for child in node.children() {
+        walk_for_types(child, types);
+    }
+}
+
+fn extract_type_from_let(binding: ast::LetBinding) -> Option<VaultType> {
+    let init = binding.init()?;
+
+    // Value should be FuncCall: (vault.note-type)("name", ...)
+    let ast::Expr::FuncCall(call) = init else {
+        return None;
+    };
+
+    // Callee should be Parenthesized(FieldAccess(_, "note-type"))
+    let ast::Expr::Parenthesized(paren) = call.callee() else {
+        return None;
+    };
+
+    let ast::Expr::FieldAccess(fa) = paren.expr() else {
+        return None;
+    };
+
+    if fa.field().as_str() != "note-type" {
+        return None;
+    }
+
+    // Extract type name from first positional arg and fields from named arg
+    let mut name = None;
+    let mut fields = Vec::new();
+
+    for arg in call.args().items() {
+        match arg {
+            ast::Arg::Pos(expr) => {
+                if name.is_none() {
+                    name = expr_to_string(expr);
+                }
+            }
+            ast::Arg::Named(named) => {
+                if named.name().as_str() == "fields" {
+                    fields = extract_dict_fields(named.expr());
+                }
+            }
+            _ => {}
+        }
+    }
+
+    Some(VaultType {
+        name: name?,
+        fields,
+    })
+}
+
+fn extract_dict_fields(expr: ast::Expr) -> Vec<(String, String)> {
+    let ast::Expr::Dict(dict) = expr else {
+        return Vec::new();
+    };
+
+    let mut fields = Vec::new();
+    for item in dict.items() {
+        if let ast::DictItem::Named(named) = item {
+            let key = named.name().as_str().to_string();
+            let value = expr_to_raw_typst(named.expr());
+            fields.push((key, value));
+        }
+    }
+    fields
+}
+
+/// Convert an AST expression to its raw Typst source representation.
+fn expr_to_raw_typst(expr: ast::Expr) -> String {
+    match expr {
+        ast::Expr::Str(s) => format!("\"{}\"", s.get()),
+        ast::Expr::Int(i) => i.get().to_string(),
+        ast::Expr::Bool(b) => if b.get() { "true" } else { "false" }.to_string(),
+        ast::Expr::Array(arr) => {
+            let items: Vec<String> = arr
+                .items()
+                .filter_map(|item| match item {
+                    ast::ArrayItem::Pos(e) => Some(expr_to_raw_typst(e)),
+                    _ => None,
+                })
+                .collect();
+            if items.is_empty() {
+                "()".to_string()
+            } else {
+                format!("({})", items.join(", "))
+            }
+        }
+        _ => "\"\"".to_string(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -296,6 +403,85 @@ See #xlink("note-b") and #xlink("note-c").
         let result = extract_from_file(source, "notes/closures.typ").unwrap();
         assert!(result.links.contains(&"programming/python".to_string()));
         assert!(result.links.contains(&"programming/rust/traits".to_string()));
+    }
+
+    #[test]
+    fn test_extract_vault_types_basic() {
+        let source = r#"
+#let note = (vault.note-type)("note")
+#let task = (vault.note-type)("task")
+#let card = (vault.note-type)("card")
+"#;
+        let types = extract_vault_types(source);
+        assert_eq!(types.len(), 3);
+        assert_eq!(types[0].name, "note");
+        assert_eq!(types[1].name, "task");
+        assert_eq!(types[2].name, "card");
+        assert!(types[0].fields.is_empty());
+    }
+
+    #[test]
+    fn test_extract_vault_types_with_fields() {
+        let source = r#"
+#let note = (vault.note-type)("note", fields: (tags: "", links: ""))
+#let task = (vault.note-type)("task", fields: (status: "", priority: ""))
+#let card = (vault.note-type)("card")
+"#;
+        let types = extract_vault_types(source);
+        assert_eq!(types.len(), 3);
+
+        assert_eq!(types[0].name, "note");
+        assert_eq!(types[0].fields, vec![
+            ("tags".to_string(), "\"\"".to_string()),
+            ("links".to_string(), "\"\"".to_string()),
+        ]);
+
+        assert_eq!(types[1].name, "task");
+        assert_eq!(types[1].fields, vec![
+            ("status".to_string(), "\"\"".to_string()),
+            ("priority".to_string(), "\"\"".to_string()),
+        ]);
+
+        assert_eq!(types[2].name, "card");
+        assert!(types[2].fields.is_empty());
+    }
+
+    #[test]
+    fn test_extract_vault_types_full_vault() {
+        let source = r#"
+#import "@local/notes:0.1.0": new-vault, as-branch
+
+#let vault = new-vault(
+  index: json("notes-index.json"),
+)
+
+#let note = (vault.note-type)("note")
+#let task = (vault.note-type)("task", fields: (priority: ""))
+#let card = (vault.note-type)("card")
+#let xlink = vault.xlink
+"#;
+        let types = extract_vault_types(source);
+        assert_eq!(types.len(), 3);
+        assert_eq!(types[0].name, "note");
+        assert_eq!(types[1].name, "task");
+        assert_eq!(types[2].name, "card");
+    }
+
+    #[test]
+    fn test_extract_vault_types_array_fields() {
+        let source = r#"
+#let report = (vault.note-type)("report", fields: (tags: ()))
+#let note = (vault.note-type)("note", fields: (tags: (), links: ()))
+"#;
+        let types = extract_vault_types(source);
+        assert_eq!(types.len(), 2);
+        assert_eq!(types[0].name, "report");
+        eprintln!("report fields: {:?}", types[0].fields);
+        assert_eq!(types[0].fields[0].0, "tags");
+        assert_eq!(types[0].fields[0].1, "()");
+
+        assert_eq!(types[1].fields[0].1, "()");
+        assert_eq!(types[1].fields[1].1, "()");
     }
 
     #[test]

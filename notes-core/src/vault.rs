@@ -1,6 +1,7 @@
+use crate::ast;
 use crate::csv_registry;
 use crate::error::NotesError;
-use crate::types::{NotesIndex, VaultConfig};
+use crate::types::{NotesIndex, VaultConfig, VaultType};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -39,6 +40,7 @@ impl Vault {
 #let tag = (vault.note-type)("tag")
 #let note = (vault.note-type)("note", fields: (tags: (), links: ()))
 #let task = (vault.note-type)("task", fields: (tags: (), priority: ""))
+#let report = (vault.note-type)("report", fields: (tags: ()))
 
 // Cross-references
 #let xlink = vault.xlink
@@ -135,6 +137,13 @@ This is your first note. Start writing!
     /// Get note paths from CSV.
     pub fn note_paths(&self) -> Result<Vec<String>, NotesError> {
         csv_registry::read_note_paths(&self.config.note_paths_file)
+    }
+
+    /// Extract note type definitions from vault.typ.
+    pub fn note_types(&self) -> Result<Vec<VaultType>, NotesError> {
+        let vault_typ = self.config.root.join("vault.typ");
+        let source = fs::read_to_string(&vault_typ)?;
+        Ok(ast::extract_vault_types(&source))
     }
 }
 

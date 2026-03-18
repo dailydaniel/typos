@@ -22,13 +22,22 @@ pub enum Commands {
         #[arg(long, default_value = "note")]
         r#type: String,
     },
+    /// Delete a note by id
+    Delete {
+        id: String,
+    },
+    /// Rename a note (updates all references)
+    Rename {
+        old_id: String,
+        new_id: String,
+    },
     /// Rebuild the notes index
     Index,
     /// Sync CSV with filesystem + reindex
     Sync,
-    /// Compile a note to HTML or PDF
+    /// Compile a note to HTML or PDF (accepts id or file path)
     Compile {
-        file: String,
+        note: String,
         #[arg(long, default_value = "html")]
         format: String,
         #[arg(short, long)]
@@ -51,9 +60,9 @@ pub enum Commands {
         #[arg(long, default_value = "table")]
         format: String,
     },
-    /// Watch a note and recompile on changes
+    /// Watch a note and recompile on changes (accepts id or file path)
     Watch {
-        file: String,
+        note: String,
         #[arg(long, default_value = "html")]
         format: String,
     },
@@ -72,12 +81,14 @@ fn main() {
     let result = match cli.command {
         Commands::Init { path } => commands::init(&path),
         Commands::New { title, r#type } => commands::new_note(&title, &r#type),
+        Commands::Delete { id } => commands::delete(&id),
+        Commands::Rename { old_id, new_id } => commands::rename(&old_id, &new_id),
         Commands::Index => commands::index(),
         Commands::Sync => commands::sync(),
-        Commands::Compile { file, format, output } => {
-            commands::compile(&file, &format, output.as_deref())
+        Commands::Compile { note, format, output } => {
+            commands::compile(&note, &format, output.as_deref())
         }
-        Commands::Watch { file, format } => commands::watch(&file, &format),
+        Commands::Watch { note, format } => commands::watch(&note, &format),
         Commands::Search { query, r#type } => commands::search(&query, r#type.as_deref()),
         Commands::Backlinks { id } => commands::backlinks(&id),
         Commands::List { r#type, format } => commands::list(r#type.as_deref(), &format),
