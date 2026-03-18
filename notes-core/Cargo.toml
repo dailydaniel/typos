@@ -15,3 +15,6 @@ slug = "0.1"
 # Компиляция (Phase 5 — пока закомментировано)
 # typst = "0.14"
 # typst-kit = "0.14"
+
+[dev-dependencies]
+tempfile = "3"

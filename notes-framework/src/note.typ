@@ -1,7 +1,8 @@
-// Note utilities (as-branch)
-// TODO: implement as-branch()
+// Note utilities
 
+/// Wrap included content to signal branch mode (not standalone).
+/// Usage: #as-branch(include "notes/sub-note.typ")
 #let as-branch(body) = {
-  // TODO
+  metadata((kind: "branch"))
   body
 }

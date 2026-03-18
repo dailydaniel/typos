@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "generated_at": "2026-03-18T13:11:24.947498+00:00",
+  "notes": [
+    {
+      "id": "welcome",
+      "title": "Welcome",
+      "type": "note",
+      "parent": null,
+      "tags": [],
+      "created": null,
+      "path": "notes/welcome.typ"
+    },
+    {
+      "id": "rust-basics",
+      "title": "Rust Basics",
+      "type": "note",
+      "parent": null,
+      "tags": [
+        "rust",
+        "programming"
+      ],
+      "created": null,
+      "path": "notes/rust-basics.typ"
+    },
+    {
+      "id": "build-mvp",
+      "title": "Build MVP",
+      "type": "task",
+      "parent": null,
+      "tags": [
+        "dev",
+        "mvp"
+      ],
+      "created": null,
+      "path": "notes/build-mvp.typ"
+    },
+    {
+      "id": "closures",
+      "title": "Closures",
+      "type": "card",
+      "parent": "rust-basics",
+      "tags": [],
+      "created": null,
+      "path": "notes/closures.typ"
+    },
+    {
+      "id": "rust",
+      "title": "Rust",
+      "type": "tag",
+      "parent": null,
+      "tags": [],
+      "created": null,
+      "path": "notes/rust.typ"
+    },
+    {
+      "id": "manual-note",
+      "title": "Added Manually",
+      "type": "note",
+      "parent": null,
+      "tags": [],
+      "created": null,
+      "path": "notes/manual-note.typ"
+    }
+  ],
+  "links": [
+    {
+      "source": "rust-basics",
+      "target": "rust",
+      "source_path": "notes/rust-basics.typ"
+    },
+    {
+      "source": "build-mvp",
+      "target": "welcome",
+      "source_path": "notes/build-mvp.typ"
+    },
+    {
+      "source": "closures",
+      "target": "rust-basics",
+      "source_path": "notes/closures.typ"
+    },
+    {
+      "source": "closures",
+      "target": "rust",
+      "source_path": "notes/closures.typ"
+    }
+  ]
+}
