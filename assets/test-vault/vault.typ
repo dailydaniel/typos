@@ -9,6 +9,7 @@
 #let note = (vault.note-type)("note", fields: (tags: (), links: ()))
 #let task = (vault.note-type)("task", fields: (tags: (), priority: ""))
 #let report = (vault.note-type)("report", fields: (tags: ()))
+#let journal = (vault.note-type)("journal", fields: (date: ""))
 
 // Cross-references
 #let xlink = vault.xlink
