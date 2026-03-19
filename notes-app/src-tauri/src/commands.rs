@@ -46,6 +46,16 @@ where
     f(vault)
 }
 
+/// Apply bundled typst binary and package paths to a vault.
+fn apply_bundled_paths(state: &State<AppState>, vault: &mut Vault) {
+    if let Ok(bin) = state.typst_binary.lock() {
+        vault.typst_binary = bin.clone();
+    }
+    if let Ok(pkg) = state.package_path.lock() {
+        vault.package_path = pkg.clone();
+    }
+}
+
 // --- Vault management ---
 
 #[tauri::command]
@@ -64,6 +74,7 @@ pub fn open_vault(state: State<AppState>, path: String) -> Result<VaultInfo, Str
 
     let root = vault.config.root.display().to_string();
 
+    apply_bundled_paths(&state, &mut vault);
     *state.vault.lock().map_err(|e| e.to_string())? = Some(vault);
 
     Ok(VaultInfo {
@@ -76,7 +87,7 @@ pub fn open_vault(state: State<AppState>, path: String) -> Result<VaultInfo, Str
 #[tauri::command]
 pub fn init_vault(state: State<AppState>, path: String) -> Result<VaultInfo, String> {
     let p = Path::new(&path);
-    let vault = Vault::init(p).map_err(|e| e.to_string())?;
+    let mut vault = Vault::init(p).map_err(|e| e.to_string())?;
 
     let note_count = vault.index.as_ref().map(|i| i.notes.len()).unwrap_or(0);
     let vault_types: Vec<VaultTypeInfo> = vault
@@ -88,6 +99,7 @@ pub fn init_vault(state: State<AppState>, path: String) -> Result<VaultInfo, Str
 
     let root = vault.config.root.display().to_string();
 
+    apply_bundled_paths(&state, &mut vault);
     *state.vault.lock().map_err(|e| e.to_string())? = Some(vault);
 
     Ok(VaultInfo {

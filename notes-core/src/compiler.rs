@@ -45,12 +45,21 @@ impl Vault {
             fs::create_dir_all(parent)?;
         }
 
-        let mut cmd = Command::new("typst");
+        let typst_bin = self
+            .typst_binary
+            .as_deref()
+            .unwrap_or(Path::new("typst"));
+
+        let mut cmd = Command::new(typst_bin);
         cmd.arg("compile")
             .arg("--root")
             .arg(&self.config.root)
             .arg(note_path)
             .arg(output);
+
+        if let Some(pkg_path) = &self.package_path {
+            cmd.arg("--package-path").arg(pkg_path);
+        }
 
         if format == "html" {
             cmd.arg("--features").arg("html");

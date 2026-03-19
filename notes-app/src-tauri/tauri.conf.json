@@ -1,7 +1,7 @@
 {
   "productName": "typst-notes",
   "version": "0.1.0",
-  "identifier": "com.typst-notes.app",
+  "identifier": "com.typst-notes.desktop",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -20,6 +20,13 @@
     ],
     "security": {
       "csp": null
+    }
+  },
+  "bundle": {
+    "externalBin": ["binaries/typst"],
+    "resources": {
+      "../../notes-framework/typst.toml": "packages/local/notes/0.1.0/typst.toml",
+      "../../notes-framework/src/*": "packages/local/notes/0.1.0/src/"
     }
   },
   "plugins": {}

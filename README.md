@@ -2,31 +2,76 @@
 
 A note-taking system built on [Typst](https://typst.app/) instead of Markdown. Notes are plain `.typ` files with built-in support for typed metadata, cross-references, backlinks, and knowledge graphs — all powered by Typst's own type system.
 
-Instead of reinventing frontmatter parsers, Dataview-style query languages, and custom renderers, typst-notes lets Typst do what it already does: functions, types, and content transformations. The tooling layer (Rust CLI) handles AST extraction and indexing, while the Typst framework handles rendering.
+Instead of reinventing frontmatter parsers, Dataview-style query languages, and custom renderers, typst-notes lets Typst do what it already does: functions, types, and content transformations. The tooling layer (Rust) handles AST extraction and indexing, while the Typst framework handles rendering.
 
 ## Architecture
 
 ```
 typst-notes/
-├── notes-framework/    @local/notes Typst package
-├── notes-core/         Rust library (AST parsing, indexing)
+├── notes-app/          Tauri desktop app (Svelte + CodeMirror)
+├── notes-core/         Rust library (AST parsing, indexing, compilation)
 ├── notes-cli/          CLI binary wrapping notes-core
-└── notes-app/          Tauri GUI (planned)
+└── notes-framework/    @local/notes Typst package
 ```
 
 **Data flow:**
 1. You write `.typ` notes with typed constructors and cross-references
-2. `notes index` parses all files via `typst-syntax` AST and builds `notes-index.json`
+2. The indexer parses all files via `typst-syntax` AST and builds `notes-index.json`
 3. When Typst compiles a note, the framework reads the index to resolve links and render backlinks
 
-## Installation
+## Desktop App
+
+A native desktop app built with Tauri 2, Svelte 5, and CodeMirror 6. Editor with Typst syntax highlighting, live HTML preview, full-text search, and note management. Typst compiler and framework are bundled — no external dependencies needed for end users.
+
+### Prerequisites
+
+- [Rust toolchain](https://rustup.rs/)
+- [Node.js](https://nodejs.org/) (v18+)
+- Typst binary — download from [GitHub releases](https://github.com/typst/typst/releases) and place in `notes-app/src-tauri/binaries/`:
+
+```
+notes-app/src-tauri/binaries/
+├── typst-aarch64-apple-darwin        # macOS ARM
+├── typst-x86_64-apple-darwin         # macOS Intel
+├── typst-x86_64-unknown-linux-gnu    # Linux
+└── typst-x86_64-pc-windows-msvc.exe  # Windows
+```
+
+You only need the binary for your current platform. The notes framework is bundled automatically from `notes-framework/`.
+
+### Development
 
 ```bash
-# Install the CLI globally (requires Rust toolchain)
-cargo install --path notes-cli
+cd notes-app
+npm install
+npx tauri dev
+```
 
-# The `notes` command is now available everywhere
-notes --help
+### Production build
+
+```bash
+cd notes-app
+npx tauri build
+```
+
+The compiled app bundle will be in `notes-app/src-tauri/target/release/bundle/`.
+
+### Keyboard shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Cmd+S` | Save current note |
+| `Cmd+K` | Search notes |
+| `Cmd+O` | Open vault |
+| `Cmd+N` | New note |
+
+## CLI
+
+### Installation
+
+```bash
+# Requires Rust toolchain
+cargo install --path notes-cli
 
 # Install the Typst framework as a local package
 # macOS:
@@ -36,8 +81,6 @@ cp notes-framework/typst.toml ~/Library/Application\ Support/typst/packages/loca
 cp -r notes-framework/src/ ~/.local/share/typst/packages/local/notes/0.1.0/src/
 cp notes-framework/typst.toml ~/.local/share/typst/packages/local/notes/0.1.0/
 ```
-
-## CLI Usage
 
 ### Create a vault
 
@@ -49,7 +92,7 @@ cd my-vault
 This generates:
 - `vault.typ` — vault configuration with note type definitions
 - `note-paths.csv` — registry of all note files
-- `notes-index.json` — metadata index (rebuilt by `notes index`)
+- `notes-index.json` — metadata index
 - `notes/welcome.typ` — your first note
 
 ### Create notes
@@ -58,116 +101,36 @@ This generates:
 notes new "Build MVP" --type task
 notes new "programming/rust" --type note
 notes new "programming/rust/closures" --type note
-notes new "programming/python"
 ```
 
-The path syntax (`/`) creates a hierarchy. Parent notes are auto-created if they don't exist. Each command creates a `.typ` file in `notes/` with `--` as the path separator in the filename:
+The path syntax (`/`) creates a hierarchy. Parent notes are auto-created if they don't exist:
 
 ```
-notes/build-mvp.typ                  → id: "build-mvp"
-notes/programming.typ                → id: "programming"
-notes/programming--rust.typ          → id: "programming/rust"
+notes/build-mvp.typ                   → id: "build-mvp"
+notes/programming--rust.typ           → id: "programming/rust"
 notes/programming--rust--closures.typ → id: "programming/rust/closures"
 ```
 
-### Build the index
+### Other commands
 
 ```bash
-notes index
-# Indexed 5 notes, 4 links
+notes index                          # rebuild index
+notes list                           # list all notes
+notes list --type task               # filter by type
+notes search "rust"                  # full-text search
+notes backlinks "programming/rust"   # show incoming links
+notes graph                          # knowledge graph
+notes compile programming/rust       # compile to HTML
+notes compile programming/rust --format pdf
+notes watch welcome                  # live recompilation
+notes rename old-id new-id           # rename with reference updates
+notes delete note-id                 # delete note
+notes sync                           # sync after external changes (e.g. git pull)
 ```
-
-Parses all registered `.typ` files, extracts metadata and `xlink` calls, writes `notes-index.json`.
-
-### Search and query
-
-```bash
-notes list
-# ID                             TITLE          TYPE     PARENT
-# ---------------------------------------------------------------------------
-# welcome                        Welcome        note
-# build-mvp                      Build MVP      task
-# programming                    programming    note
-# programming/rust               rust           note     programming
-# programming/rust/closures      closures       card     programming/rust
-# programming/python             python         note     programming
-
-notes list --type card
-notes list --format json
-
-notes search "rust"
-#   programming/rust — rust (note)
-#   programming/rust/closures — closures (card)
-# 2 result(s)
-
-notes backlinks "programming/rust"
-# Backlinks for "programming/rust":
-#   programming/rust/closures — closures (card)
-
-notes graph
-# Graph: 5 nodes, 2 edges
-#   programming/rust/closures -> programming/rust
-
-notes graph --format json
-```
-
-### Sync after external changes
-
-If files were added or removed outside the CLI (e.g. `git pull`):
-
-```bash
-notes sync
-# Synced: +2 added, -1 removed
-```
-
-Scans `notes/*.typ`, updates `note-paths.csv`, rebuilds the index.
-
-### Delete notes
-
-```bash
-notes delete build-mvp
-notes delete programming/rust/closures
-```
-
-Removes the file and its CSV entry.
-
-### Rename notes
-
-```bash
-notes rename programming/rust programming/rs
-#   programming/rs
-#   programming/rs/closures
-# Renamed 2 note(s)
-```
-
-Renames the note and all children. Updates `@id` references and `#xlink("id")` calls across all notes in the vault.
-
-### Compile notes
-
-Accepts a note id or a file path:
-
-```bash
-notes compile programming/rust/closures              # by id → assets/current.html
-notes compile programming/rust/closures --format pdf  # by id → assets/current.pdf
-notes compile notes/welcome.typ -o out.pdf --format pdf  # by file path
-```
-
-Default output is `assets/current.html`. Before compiling, the index is automatically rebuilt if any `.typ` files have changed.
-
-Each compiled note includes a metadata header block (title, type, id, parent, custom fields) and backlinks at the bottom.
-
-### Watch mode
-
-```bash
-notes watch welcome                       # by id → assets/current.html, live reload
-notes watch notes/welcome.typ --format pdf  # by file path → assets/current.pdf
-```
-
-Watches the vault for `.typ` file changes and recompiles automatically. On each change: reindex if stale → recompile → write output. Useful with Tauri or a browser for live preview.
 
 ## Writing Notes
 
-A note is a regular `.typ` file. The title heading is rendered automatically — no need to write `= Title` manually:
+A note is a regular `.typ` file. The title heading is rendered automatically:
 
 ```typst
 #import "../vault.typ": *
@@ -182,20 +145,14 @@ Closures capture variables from their environment.
 See also #xlink("programming/rust/traits").
 ```
 
-**`#show: type.with(title: "...")`** — registers the note with typed metadata. The `id` and `parent` are derived from the filename automatically — you only need to specify `title` and any custom fields.
+**`#show: type.with(title: "...")`** — registers the note with typed metadata. The `id` and `parent` are derived from the filename automatically.
 
 ### Cross-references
 
-There are two ways to link to other notes:
+- **In properties** — `"@id"` string: `tags: ("rust", "@programming/python")`. Rendered as a clickable link, indexed automatically.
+- **In body text** — `#xlink("id")`: `See #xlink("programming/rust")`. Rendered as an inline link.
 
-- **In properties** — use `"@id"` string: `tags: ("rust", "@programming/python")`. Rendered as a clickable link in the metadata block, and indexed by `notes index`.
-- **In body text** — use `#xlink("id")`: `See #xlink("programming/rust")`. Rendered as an inline link with the target note's title.
-
-Both are indexed as links and appear in backlinks of the target note.
-
-**Backlinks** are rendered automatically at the bottom of each note — no manual setup needed.
-
-**Metadata header** is rendered at the top of each compiled note showing all properties (title, type, id, parent, custom fields). Can be disabled with `show-meta: false` on the note type.
+Both appear in backlinks of the target note. Backlinks are rendered automatically at the bottom of each note.
 
 ## Framework
 
@@ -225,53 +182,14 @@ The user's `vault.typ` ties it together:
 #let xlink = vault.xlink
 ```
 
-The optional `fields` parameter defines default fields for `notes new`. When creating a note of that type, the CLI generates these fields with their default values. The `--type` flag is validated against the types defined here.
-
-## Desktop App (Tauri)
-
-A native desktop app built with Tauri 2, Svelte 5, and CodeMirror 6.
-
-### Prerequisites
-
-- [Rust toolchain](https://rustup.rs/)
-- [Node.js](https://nodejs.org/) (v18+)
-- Typst framework installed as a local package (see Installation above)
-
-### Development
-
-```bash
-cd notes-app
-npm install
-npx tauri dev
-```
-
-This starts the Vite dev server and launches the Tauri window with hot reload.
-
-### Production build
-
-```bash
-cd notes-app
-npx tauri build
-```
-
-The compiled app bundle will be in `notes-app/src-tauri/target/release/bundle/`.
-
-### Keyboard shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Cmd+S` | Save current note |
-| `Cmd+K` | Search notes |
-| `Cmd+O` | Open vault |
-
 ## Roadmap
 
+- [x] **Tauri app** — desktop GUI with editor, preview, search
 - [x] **Compile & watch** — `notes compile` and `notes watch` via typst subprocess
-- [x] **Type validation** — CLI validates `--type` against vault.typ definitions, generates typed fields
+- [x] **Type validation** — CLI validates `--type` against vault.typ definitions
 - [x] **Note rename** — `notes rename` with automatic reference updates
+- [x] **Typst bundling** — typst binary as Tauri sidecar, framework as bundled resources
 - [ ] **Programmatic compilation** — replace subprocess with `typst` Rust crate (World trait)
-- [x] **Tauri app** — desktop GUI with editor, preview, search (Svelte + Vite)
 - [ ] **iOS support** — via Tauri v2 mobile
 - [ ] **Graphviz rendering** — `diagraph` integration for visual knowledge graphs
 - [ ] **Incremental indexing** — skip unchanged files based on mtime
-- [ ] **Parallel parsing** — `rayon` for large vaults

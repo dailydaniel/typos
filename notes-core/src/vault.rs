@@ -9,6 +9,10 @@ use std::path::{Path, PathBuf};
 pub struct Vault {
     pub config: VaultConfig,
     pub index: Option<NotesIndex>,
+    /// Path to typst binary. If None, uses "typst" from PATH.
+    pub typst_binary: Option<PathBuf>,
+    /// Path to package directory for --package-path flag.
+    pub package_path: Option<PathBuf>,
 }
 
 impl Vault {
@@ -86,6 +90,8 @@ This is your first note. Start writing!
         Ok(Vault {
             config,
             index: Some(index),
+            typst_binary: None,
+            package_path: None,
         })
     }
 
@@ -109,6 +115,8 @@ This is your first note. Start writing!
         Ok(Vault {
             config,
             index: None,
+            typst_binary: None,
+            package_path: None,
         })
     }
 

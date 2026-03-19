@@ -2,3 +2,4 @@ target/
 .claude/
 node_modules/
 notes-app/dist/
+notes-app/src-tauri/binaries/

@@ -17,6 +17,13 @@
       "allow": [
         { "path": "/**" }
       ]
+    },
+    "shell:default",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        { "name": "binaries/typst", "sidecar": true }
+      ]
     }
   ]
 }
