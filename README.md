@@ -12,9 +12,15 @@ Notes are plain `.typ` files with built-in support for typed metadata, cross-ref
 
 Instead of reinventing frontmatter parsers, Dataview-style query languages, and custom renderers, typos lets Typst do what it already does: functions, types, and content transformations. The tooling layer (Rust) handles AST extraction and indexing, while the Typst framework handles rendering.
 
-![Editor with live preview](assets/screenshots/main.png)
+<p align="center">
+  <img src="assets/screenshots/main.png" alt="Editor with live preview" width="800"><br>
+  <em>Editor with Typst syntax highlighting and live HTML preview</em>
+</p>
 
-![Programmable vault.typ](assets/screenshots/vault.png)
+<p align="center">
+  <img src="assets/screenshots/vault.png" alt="Programmable vault.typ" width="800"><br>
+  <em>Programmable type system — define your note types in vault.typ</em>
+</p>
 
 ## Architecture
 
