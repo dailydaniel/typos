@@ -173,7 +173,8 @@
   }
 
   async function handleTodayJournal() {
-    const today = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     // Check if journal for today already exists
     const existing = appState.notes.find(
       (n) => n.type === "journal" && (n as any).date === today

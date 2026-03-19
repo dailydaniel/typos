@@ -1,6 +1,6 @@
 {
   "productName": "typos",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "identifier": "com.typos.desktop",
   "build": {
     "frontendDist": "../dist",
@@ -23,6 +23,13 @@
     }
   },
   "bundle": {
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
     "externalBin": ["binaries/typst"],
     "resources": {
       "../../notes-framework/typst.toml": "packages/local/notes/0.1.0/typst.toml",

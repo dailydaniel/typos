@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-03-19T22:08:13.227817+00:00",
+  "generated_at": "2026-03-19T22:54:49.623166+00:00",
   "notes": [
     {
       "id": "welcome",
@@ -100,6 +100,16 @@
       "path": "notes/2026-03-19.typ",
       "date": "2026-03-19",
       "previous": "@2026-03-15"
+    },
+    {
+      "id": "2026-03-20",
+      "title": "2026-03-20",
+      "type": "journal",
+      "parent": null,
+      "created": null,
+      "path": "notes/2026-03-20.typ",
+      "date": "2026-03-20",
+      "previous": "@2026-03-19"
     }
   ],
   "links": [
@@ -132,6 +142,11 @@
       "source": "2026-03-19",
       "target": "2026-03-15",
       "source_path": "notes/2026-03-19.typ"
+    },
+    {
+      "source": "2026-03-20",
+      "target": "2026-03-19",
+      "source_path": "notes/2026-03-20.typ"
     }
   ]
 }
