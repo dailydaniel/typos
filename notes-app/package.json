@@ -14,6 +14,7 @@
     "@codemirror/language": "^6.12.2",
     "@codemirror/state": "^6.6.0",
     "@codemirror/view": "^6.40.0",
+    "@replit/codemirror-vim": "^6.3.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2",
     "@tauri-apps/plugin-fs": "^2",

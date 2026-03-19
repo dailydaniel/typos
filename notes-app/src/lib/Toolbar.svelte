@@ -37,6 +37,19 @@
   </div>
 
   <div class="toolbar-right">
+    <div class="vim-switch" title={appState.vimMode ? "Disable Vim mode" : "Enable Vim mode"}>
+      <span class="vim-label">VIM</span>
+      <button
+        class="switch-track"
+        class:active={appState.vimMode}
+        onclick={() => appState.toggleVimMode()}
+        role="switch"
+        aria-checked={appState.vimMode}
+        aria-label="Toggle Vim mode"
+      >
+        <span class="switch-thumb"></span>
+      </button>
+    </div>
     {#if appState.currentNoteId && !appState.isVaultTyp}
       <button
         class="icon-btn"
@@ -103,5 +116,46 @@
   }
   .icon-btn.active {
     color: var(--accent);
+  }
+
+  /* iOS-style toggle switch */
+  .vim-switch {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .vim-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+  }
+  .switch-track {
+    position: relative;
+    width: 32px;
+    height: 18px;
+    border-radius: 9px;
+    border: none;
+    background: #ccc;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .switch-track.active {
+    background: var(--accent);
+  }
+  .switch-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+  }
+  .switch-track.active .switch-thumb {
+    transform: translateX(14px);
   }
 </style>

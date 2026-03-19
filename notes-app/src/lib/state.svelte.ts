@@ -2,6 +2,7 @@ import type { VaultInfo, VaultTypeInfo, NoteMetadata } from "./types";
 
 const STARRED_KEY = "typst-notes-starred";
 const LAST_VAULT_KEY = "typst-notes-last-vault";
+const VIM_MODE_KEY = "typst-notes-vim-mode";
 
 function loadStarred(): Set<string> {
   try {
@@ -48,6 +49,14 @@ export class AppState {
   }
 
   starredNotes = $derived(this.notes.filter((n) => this._starredIds.has(n.id)));
+
+  // --- Vim mode ---
+  vimMode = $state(localStorage.getItem(VIM_MODE_KEY) === "true");
+
+  toggleVimMode() {
+    this.vimMode = !this.vimMode;
+    localStorage.setItem(VIM_MODE_KEY, String(this.vimMode));
+  }
 
   // --- Preview ---
   previewHtml = $state("");

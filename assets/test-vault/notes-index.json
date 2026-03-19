@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-03-19T18:32:45.511550+00:00",
+  "generated_at": "2026-03-19T18:48:57.234544+00:00",
   "notes": [
     {
       "id": "welcome",
@@ -25,6 +25,23 @@
       "parent": "programming",
       "created": null,
       "path": "notes/programming--python.typ"
+    },
+    {
+      "id": "build-mvp",
+      "title": "Build MVP",
+      "type": "task",
+      "parent": null,
+      "created": null,
+      "path": "notes/build-mvp.typ"
+    },
+    {
+      "id": "add-tauri-app",
+      "title": "add tauri app",
+      "type": "task",
+      "parent": null,
+      "created": null,
+      "path": "notes/add-tauri-app.typ",
+      "priority": ""
     },
     {
       "id": "technical-report",
@@ -63,26 +80,19 @@
       "parent": "programming/rust",
       "created": null,
       "path": "notes/programming--rust--traits.typ"
-    },
-    {
-      "id": "build-mvp",
-      "title": "Build MVP",
-      "type": "task",
-      "parent": null,
-      "created": null,
-      "path": "notes/build-mvp.typ"
-    },
-    {
-      "id": "add-tauri-app",
-      "title": "add tauri app",
-      "type": "task",
-      "parent": null,
-      "created": null,
-      "path": "notes/add-tauri-app.typ",
-      "priority": ""
     }
   ],
   "links": [
+    {
+      "source": "programming",
+      "target": "build-mvp",
+      "source_path": "notes/programming.typ"
+    },
+    {
+      "source": "programming/rust",
+      "target": "programming/python",
+      "source_path": "notes/programming--rust.typ"
+    },
     {
       "source": "programming/rust/closures",
       "target": "programming/rust",
@@ -92,11 +102,6 @@
       "source": "programming/rust/closures",
       "target": "programming/python",
       "source_path": "notes/programming--rust--closures.typ"
-    },
-    {
-      "source": "build-mvp",
-      "target": "add-tauri-app",
-      "source_path": "notes/build-mvp.typ"
     }
   ]
 }

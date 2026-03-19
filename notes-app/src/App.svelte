@@ -252,6 +252,9 @@
             content={appState.currentContent}
             onContentChange={(text) => (appState.currentContent = text)}
             notes={appState.notes}
+            vimMode={appState.vimMode}
+            onSave={handleSave}
+            onClose={() => appState.resetEditor()}
           />
         {/key}
       {:else if appState.isVaultOpen}

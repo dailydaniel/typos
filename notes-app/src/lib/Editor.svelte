@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
-  import { EditorState } from "@codemirror/state";
+  import { EditorState, Compartment } from "@codemirror/state";
   import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
   import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
   import { autocompletion } from "@codemirror/autocomplete";
@@ -12,16 +12,38 @@
     content: string;
     onContentChange: (text: string) => void;
     notes: NoteMetadata[];
+    vimMode: boolean;
+    onSave?: () => void;
+    onClose?: () => void;
   }
 
-  let { content, onContentChange, notes }: Props = $props();
+  let { content, onContentChange, notes, vimMode, onSave, onClose }: Props = $props();
 
   let container: HTMLDivElement;
   let view: EditorView | undefined;
   let skipNextExternal = false;
+  const vimCompartment = new Compartment();
 
-  function createExtensions() {
+  async function loadVimExtension(withCommands: boolean) {
+    if (!vimMode) return [];
+    try {
+      const { vim, Vim } = await import("@replit/codemirror-vim");
+
+      if (withCommands) {
+        Vim.defineEx("write", "w", () => { onSave?.(); });
+        Vim.defineEx("quit", "q", () => { onClose?.(); });
+        Vim.defineEx("wquit", "wq", () => { onSave?.(); onClose?.(); });
+      }
+
+      return vim({ status: true });
+    } catch {
+      return [];
+    }
+  }
+
+  function createExtensions(vimExt: any) {
     return [
+      vimCompartment.of(vimExt),
       lineNumbers(),
       highlightActiveLine(),
       highlightActiveLineGutter(),
@@ -53,14 +75,16 @@
       const { typst } = await import("codemirror-lang-typst");
       return typst();
     } catch {
-      // Fallback: no language support if typst WASM fails
       return [];
     }
   }
 
   onMount(() => {
-    loadTypstLanguage().then((langExt) => {
-      const extensions = [...createExtensions(), ...(Array.isArray(langExt) ? langExt : [langExt])];
+    Promise.all([loadTypstLanguage(), loadVimExtension(true)]).then(([langExt, vimExt]) => {
+      const extensions = [
+        ...createExtensions(vimExt),
+        ...(Array.isArray(langExt) ? langExt : [langExt]),
+      ];
       view = new EditorView({
         state: EditorState.create({
           doc: content,
@@ -68,6 +92,7 @@
         }),
         parent: container,
       });
+      view.focus();
     });
 
     return () => {
@@ -76,7 +101,21 @@
   });
 
   $effect(() => {
-    // Track content prop
+    const isVim = vimMode;
+    if (!view) return;
+    import("@replit/codemirror-vim").then(({ vim, Vim }) => {
+      // Re-register commands on toggle
+      Vim.defineEx("write", "w", () => { onSave?.(); });
+      Vim.defineEx("quit", "q", () => { onClose?.(); });
+      Vim.defineEx("wquit", "wq", () => { onSave?.(); onClose?.(); });
+
+      view!.dispatch({
+        effects: vimCompartment.reconfigure(isVim ? vim({ status: true }) : []),
+      });
+    }).catch(() => {});
+  });
+
+  $effect(() => {
     const newContent = content;
     if (!view) return;
     if (skipNextExternal) {
@@ -101,5 +140,26 @@
   }
   .editor-container :global(.cm-editor) {
     height: 100%;
+  }
+  /* Vim status bar */
+  .editor-container :global(.cm-vim-panel) {
+    padding: 2px 8px;
+    font-family: 'SF Mono', Menlo, Monaco, monospace;
+    font-size: 12px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  /* Visual mode selection */
+  .editor-container :global(.cm-selectionBackground) {
+    background: rgba(37, 99, 235, 0.25) !important;
+  }
+  .editor-container :global(.cm-editor.cm-focused .cm-selectionBackground) {
+    background: rgba(37, 99, 235, 0.3) !important;
+  }
+  /* Vim cursor in normal mode */
+  .editor-container :global(.cm-fat-cursor) {
+    background: rgba(0, 0, 0, 0.7) !important;
+    color: white !important;
   }
 </style>
