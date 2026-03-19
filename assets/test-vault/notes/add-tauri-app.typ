@@ -2,6 +2,6 @@
 
 #show: task.with(
   title: "add tauri app",
-  tags: (),
+  tags: ("@build-mvp"),
   priority: "",
 )

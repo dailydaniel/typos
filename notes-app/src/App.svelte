@@ -251,6 +251,7 @@
           <Editor
             content={appState.currentContent}
             onContentChange={(text) => (appState.currentContent = text)}
+            notes={appState.notes}
           />
         {/key}
       {:else if appState.isVaultOpen}

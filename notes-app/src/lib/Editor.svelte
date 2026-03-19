@@ -4,13 +4,17 @@
   import { EditorState } from "@codemirror/state";
   import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
   import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
+  import { autocompletion } from "@codemirror/autocomplete";
+  import { createNoteCompletion } from "./noteCompletion";
+  import type { NoteMetadata } from "./types";
 
   interface Props {
     content: string;
     onContentChange: (text: string) => void;
+    notes: NoteMetadata[];
   }
 
-  let { content, onContentChange }: Props = $props();
+  let { content, onContentChange, notes }: Props = $props();
 
   let container: HTMLDivElement;
   let view: EditorView | undefined;
@@ -24,6 +28,10 @@
       history(),
       bracketMatching(),
       syntaxHighlighting(defaultHighlightStyle),
+      autocompletion({
+        override: [createNoteCompletion(notes)],
+        activateOnTyping: true,
+      }),
       keymap.of([...defaultKeymap, ...historyKeymap]),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {

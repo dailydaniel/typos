@@ -166,3 +166,32 @@ kbd {
   border-radius: 3px;
   color: var(--text-secondary);
 }
+
+/* CodeMirror autocomplete */
+.cm-tooltip-autocomplete {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  font-family: 'SF Mono', Menlo, Monaco, monospace !important;
+  font-size: 13px !important;
+}
+
+.cm-tooltip-autocomplete ul li {
+  padding: 4px 8px !important;
+}
+
+.cm-tooltip-autocomplete ul li[aria-selected] {
+  background: var(--accent) !important;
+  color: white !important;
+}
+
+.cm-completionLabel {
+  font-family: 'SF Mono', Menlo, Monaco, monospace;
+}
+
+.cm-completionDetail {
+  font-style: normal !important;
+  color: var(--text-secondary);
+  margin-left: 8px !important;
+  font-size: 12px;
+}
