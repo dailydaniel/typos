@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-03-19T22:54:49.623166+00:00",
+  "generated_at": "2026-03-19T23:08:54.765556+00:00",
   "notes": [
     {
       "id": "welcome",
@@ -53,14 +53,6 @@
       "tags": []
     },
     {
-      "id": "programming/rust",
-      "title": "rust",
-      "type": "note",
-      "parent": "programming",
-      "created": null,
-      "path": "notes/programming--rust.typ"
-    },
-    {
       "id": "programming/rust/closures",
       "title": "closures",
       "type": "note",
@@ -110,6 +102,14 @@
       "path": "notes/2026-03-20.typ",
       "date": "2026-03-20",
       "previous": "@2026-03-19"
+    },
+    {
+      "id": "programming/rust",
+      "title": "rust",
+      "type": "note",
+      "parent": "programming",
+      "created": null,
+      "path": "notes/programming--rust.typ"
     }
   ],
   "links": [
@@ -117,11 +117,6 @@
       "source": "programming",
       "target": "build-mvp",
       "source_path": "notes/programming.typ"
-    },
-    {
-      "source": "programming/rust",
-      "target": "programming/python",
-      "source_path": "notes/programming--rust.typ"
     },
     {
       "source": "programming/rust/closures",
@@ -147,6 +142,11 @@
       "source": "2026-03-20",
       "target": "2026-03-19",
       "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "programming/rust",
+      "target": "programming/python",
+      "source_path": "notes/programming--rust.typ"
     }
   ]
 }

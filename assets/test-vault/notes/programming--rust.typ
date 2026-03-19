@@ -4,4 +4,5 @@
   title: "rust",
 )
 
+== other langs
 #xlink("programming/python")
