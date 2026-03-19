@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
+  import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from "@codemirror/view";
   import { EditorState, Compartment } from "@codemirror/state";
   import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
   import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
@@ -44,6 +44,7 @@
   function createExtensions(vimExt: any) {
     return [
       vimCompartment.of(vimExt),
+      drawSelection(),
       lineNumbers(),
       highlightActiveLine(),
       highlightActiveLineGutter(),
@@ -150,12 +151,15 @@
     border-top: 1px solid var(--border);
     color: var(--text-secondary);
   }
-  /* Visual mode selection */
+  /* Selection */
   .editor-container :global(.cm-selectionBackground) {
-    background: rgba(92, 74, 58, 0.2) !important;
+    background: rgba(92, 74, 58, 0.18) !important;
   }
   .editor-container :global(.cm-editor.cm-focused .cm-selectionBackground) {
-    background: rgba(92, 74, 58, 0.25) !important;
+    background: rgba(92, 74, 58, 0.22) !important;
+  }
+  .editor-container :global(.cm-content ::selection) {
+    background: rgba(92, 74, 58, 0.22);
   }
   /* Vim cursor in normal mode */
   .editor-container :global(.cm-fat-cursor) {
