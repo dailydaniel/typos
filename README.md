@@ -23,7 +23,15 @@ typst-notes/
 
 A native desktop app built with Tauri 2, Svelte 5, and CodeMirror 6. Editor with Typst syntax highlighting, live HTML preview, full-text search, and note management. Typst compiler and framework are bundled — no external dependencies needed for end users.
 
-### Prerequisites
+### Download
+
+| Platform | Download |
+|----------|----------|
+| macOS (Apple Silicon) | [typst-notes_0.1.0_aarch64.dmg](https://github.com/dailydaniel/typst-notes/releases/latest) |
+
+For other platforms, build from source (see below).
+
+### Prerequisites (building from source)
 
 - [Rust toolchain](https://rustup.rs/)
 - [Node.js](https://nodejs.org/) (v18+)
