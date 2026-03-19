@@ -21,6 +21,8 @@
     "@tauri-apps/plugin-shell": "^2.3.5",
     "codemirror": "^6.0.2",
     "codemirror-lang-typst": "^0.4.0",
+    "vis-data": "^8.0.3",
+    "vis-network": "^10.0.2",
     "vite-plugin-top-level-await": "^1.6.0",
     "vite-plugin-wasm": "^3.6.0"
   },

@@ -12,9 +12,11 @@
   import CreateNoteModal from "./lib/CreateNoteModal.svelte";
   import RenameModal from "./lib/RenameModal.svelte";
   import ActionsMenu from "./lib/ActionsMenu.svelte";
+  import GraphView from "./lib/GraphView.svelte";
 
   let actionsMenuOpen = $state(false);
   let error = $state("");
+  let graphData = $state<{ nodes: any[]; edges: any[] } | null>(null);
 
   // --- Vault ---
 
@@ -52,6 +54,7 @@
       const vaultTypPath = appState.vault.root + "/vault.typ";
       const content = await readTextFile(vaultTypPath);
       appState.resetEditor();
+      graphData = null;
       appState.currentNoteId = "__vault__";
       appState.isVaultTyp = true;
       appState.currentContent = content;
@@ -72,6 +75,7 @@
     try {
       const content = await api.readNote(id);
       appState.resetEditor();
+      graphData = null;
       appState.currentNoteId = id;
       appState.currentContent = content;
       appState.originalContent = content;
@@ -204,13 +208,9 @@
 
   async function handleShowGraph() {
     try {
-      const graph = await api.getGraph();
+      const graph = await api.getGraph() as { nodes: any[]; edges: any[] };
       appState.resetEditor();
-      appState.currentNoteId = "__graph__";
-      appState.isVaultTyp = true; // reuse flag to skip preview/note-specific ops
-      appState.currentContent = JSON.stringify(graph, null, 2);
-      appState.originalContent = appState.currentContent;
-      appState.previewOpen = false;
+      graphData = graph;
     } catch (e) {
       error = `Failed to load graph: ${e}`;
     }
@@ -256,7 +256,7 @@
 <div
   class="app"
   class:sidebar-hidden={!appState.sidebarOpen}
-  class:preview-hidden={!appState.previewOpen || appState.isVaultTyp}
+  class:preview-hidden={!appState.previewOpen || appState.isVaultTyp || graphData !== null}
 >
   <Toolbar
     onOpenVault={handleOpenVault}
@@ -283,7 +283,13 @@
     {/if}
 
     <div class="editor-pane">
-      {#if appState.currentNoteId}
+      {#if graphData}
+        <GraphView
+          nodes={graphData.nodes}
+          edges={graphData.edges}
+          onNavigate={(id) => { graphData = null; handleOpenNote(id); }}
+        />
+      {:else if appState.currentNoteId}
         {#key appState.currentNoteId}
           <Editor
             content={appState.currentContent}
