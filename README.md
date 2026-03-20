@@ -45,7 +45,7 @@ A native desktop app built with Tauri 2, Svelte 5, and CodeMirror 6. Editor with
 
 | Platform | Download |
 |----------|----------|
-| macOS (Apple Silicon) | [typos_0.2.0_aarch64.zip](https://github.com/dailydaniel/typst-notes/releases/latest) |
+| macOS (Apple Silicon) | [typos_0.2.1_aarch64.zip](https://github.com/dailydaniel/typst-notes/releases/latest) |
 
 For other platforms, build from source (see below).
 
