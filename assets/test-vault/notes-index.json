@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-03-21T11:01:19.859052+00:00",
+  "generated_at": "2026-03-21T11:05:09.253940+00:00",
   "notes": [
     {
       "id": "welcome",
@@ -212,6 +212,16 @@
     },
     {
       "source": "2026-03-20",
+      "target": "build-mvp",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "2026-03-20",
+      "target": "work/main job",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "2026-03-20",
       "target": "2026-03-19",
       "source_path": "notes/2026-03-20.typ"
     },
@@ -233,6 +243,16 @@
     {
       "source": "work/pet project",
       "target": "add-tauri-app",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "build-mvp",
+      "target": "work/main job",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "work/main job",
+      "target": "build-mvp",
       "source_path": "notes/2026-03-20.typ"
     }
   ]
