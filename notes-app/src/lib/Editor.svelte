@@ -5,6 +5,7 @@
   import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
   import { indentUnit, indentService, syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
   import { autocompletion } from "@codemirror/autocomplete";
+  import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
   import { serverCompletionSource, hoverTooltips } from "@codemirror/lsp-client";
   import type { LSPClient } from "@codemirror/lsp-client";
   import { createNoteCompletion } from "./noteCompletion";
@@ -71,6 +72,7 @@
       highlightActiveLineGutter(),
       history(),
       bracketMatching(),
+      closeBrackets(),
       syntaxHighlighting(defaultHighlightStyle),
       autocompletion({
         override: completionSources,
@@ -82,7 +84,7 @@
       ] : []),
       indentUnit.of("  "),
       typstIndent,
-      keymap.of([indentWithTab, ...defaultKeymap, ...historyKeymap]),
+      keymap.of([indentWithTab, ...closeBracketsKeymap, ...defaultKeymap, ...historyKeymap]),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           skipNextExternal = true;
