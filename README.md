@@ -8,7 +8,12 @@
 
 ---
 
-### Recent changes (v0.2.2)
+### Recent changes (v0.2.3)
+
+- **Tinymist LSP** — integrated Typst language server for autocompletion of built-in functions and parameters
+- **Editor improvements** — Tab/Shift-Tab indentation (2 spaces), auto-close brackets, smart Enter indent, toggle comments (Cmd+/)
+
+### v0.2.2
 
 - **PDF preview** — toggle between HTML and pixel-perfect PDF preview (via pdf.js); supports clickable note links
 - **xlink-scope** — cross-link two notes from a third (e.g. journal → task → project) with inline property display
@@ -54,7 +59,7 @@ A native desktop app built with Tauri 2, Svelte 5, and CodeMirror 6. Editor with
 
 | Platform | Download |
 |----------|----------|
-| macOS (Apple Silicon) | [typos_0.2.2_aarch64.zip](https://github.com/dailydaniel/typst-notes/releases/latest) |
+| macOS (Apple Silicon) | [typos_0.2.3_aarch64.zip](https://github.com/dailydaniel/typst-notes/releases/latest) |
 
 For other platforms, build from source (see below).
 
@@ -238,8 +243,8 @@ The user's `vault.typ` ties it together:
 - [x] **Design system** — warm parchment palette, Greek iconography, custom app icon
 - [x] **xlink-scope** — cross-link notes with inline property display
 - [x] **PDF preview** — pixel-perfect PDF preview with clickable links (pdf.js)
+- [x] **Tinymist LSP** — Typst language server for autocompletion of built-in functions
 - [ ] **Topos** — rename vault to topos (τόπος) :)
-- [ ] **Tinymist LSP** — Typst language server for diagnostics, hover, go-to-definition
 - [ ] **Programmatic compilation** — replace subprocess with `typst` Rust crate (World trait)
 - [ ] **Incremental indexing** — skip unchanged files based on mtime
 - [ ] **Dark preview** — dark theme for HTML preview (CSS injection into iframe)

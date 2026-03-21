@@ -42,7 +42,7 @@
 //   align(right)[
 //     text aligned right with #xlink("programming") \
 //     adding #current-work[
-//       some text and #xlink("build-mvp")
+//       some text and #xlink("build-mvp") #xlink("2026-03-20")
 //     ]
 //   ]
 // )
