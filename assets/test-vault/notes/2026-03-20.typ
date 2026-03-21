@@ -34,15 +34,15 @@
   ]
 )
 
-#grid(
-  columns: (1fr, 1fr),
-  align(center)[
-    some text
-  ],
-  align(right)[
-    text aligned right with #xlink("programming") \
-    adding #current-work[
-      some text and #xlink("build-mvp")
-    ]
-  ]
-)
+// #grid(
+//   columns: (1fr, 1fr),
+//   align(center)[
+//     some text
+//   ],
+//   align(right)[
+//     text aligned right with #xlink("programming") \
+//     adding #current-work[
+//       some text and #xlink("build-mvp")
+//     ]
+//   ]
+// )

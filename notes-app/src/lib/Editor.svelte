@@ -6,7 +6,7 @@
   import { indentUnit, indentService, syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
   import { autocompletion } from "@codemirror/autocomplete";
   import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
-  import { serverCompletionSource, hoverTooltips } from "@codemirror/lsp-client";
+  import { serverCompletionSource } from "@codemirror/lsp-client";
   import type { LSPClient } from "@codemirror/lsp-client";
   import { createNoteCompletion } from "./noteCompletion";
   import type { NoteMetadata } from "./types";
@@ -46,6 +46,48 @@
     }
   }
 
+  /** Toggle // comments for selected lines */
+  function toggleTypstComment(view: EditorView): boolean {
+    const { state } = view;
+    const sel = state.selection.main;
+    const fromLine = state.doc.lineAt(sel.from).number;
+    const toLine = state.doc.lineAt(sel.to).number;
+
+    // Check if all lines start with //
+    let allCommented = true;
+    for (let i = fromLine; i <= toLine; i++) {
+      if (!state.doc.line(i).text.trimStart().startsWith("//")) {
+        allCommented = false;
+        break;
+      }
+    }
+
+    // Build new text for the affected range
+    const lines: string[] = [];
+    for (let i = fromLine; i <= toLine; i++) {
+      const text = state.doc.line(i).text;
+      if (allCommented) {
+        // Remove "// " or "//" from start (preserving indent)
+        lines.push(text.replace(/^(\s*)\/\/ ?/, "$1"));
+      } else {
+        // Add "// " at column 0
+        lines.push("// " + text);
+      }
+    }
+
+    const rangeFrom = state.doc.line(fromLine).from;
+    const rangeTo = state.doc.line(toLine).to;
+
+    try {
+      view.dispatch({
+        changes: { from: rangeFrom, to: rangeTo, insert: lines.join("\n") },
+      });
+    } catch {
+      // codemirror-lang-typst tree edit error — non-fatal
+    }
+    return true;
+  }
+
   /** Simple indentation: inherit previous line's indent, +2 after opening brackets */
   const typstIndent = indentService.of((context, pos) => {
     const line = context.lineAt(pos);
@@ -80,10 +122,18 @@
       }),
       ...(lspClient ? [
         lspClient.plugin(fileUri, "typst"),
-        hoverTooltips(),
       ] : []),
       indentUnit.of("  "),
       typstIndent,
+      EditorView.domEventHandlers({
+        keydown(event, view) {
+          if ((event.metaKey || event.ctrlKey) && event.key === "/") {
+            event.preventDefault();
+            toggleTypstComment(view);
+            return true;
+          }
+        },
+      }),
       keymap.of([indentWithTab, ...closeBracketsKeymap, ...defaultKeymap, ...historyKeymap]),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
