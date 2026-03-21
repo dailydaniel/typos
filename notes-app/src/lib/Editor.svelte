@@ -2,8 +2,8 @@
   import { onMount } from "svelte";
   import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from "@codemirror/view";
   import { EditorState, Compartment } from "@codemirror/state";
-  import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
-  import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
+  import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
+  import { indentUnit, indentService, syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
   import { autocompletion } from "@codemirror/autocomplete";
   import { serverCompletionSource, hoverTooltips } from "@codemirror/lsp-client";
   import type { LSPClient } from "@codemirror/lsp-client";
@@ -45,6 +45,20 @@
     }
   }
 
+  /** Simple indentation: inherit previous line's indent, +2 after opening brackets */
+  const typstIndent = indentService.of((context, pos) => {
+    const line = context.lineAt(pos);
+    if (line.number === 1) return 0;
+    const prevLine = context.lineAt(line.from - 1);
+    const prevText = prevLine.text;
+    const prevIndent = prevText.match(/^\s*/)?.[0].length ?? 0;
+    const trimmed = prevText.trimEnd();
+    if (trimmed.endsWith("[") || trimmed.endsWith("(") || trimmed.endsWith("{")) {
+      return prevIndent + 2;
+    }
+    return prevIndent;
+  });
+
   function createExtensions(vimExt: any) {
     const completionSources = [createNoteCompletion(notes)];
     if (lspClient) completionSources.push(serverCompletionSource);
@@ -66,7 +80,9 @@
         lspClient.plugin(fileUri, "typst"),
         hoverTooltips(),
       ] : []),
-      keymap.of([...defaultKeymap, ...historyKeymap]),
+      indentUnit.of("  "),
+      typstIndent,
+      keymap.of([indentWithTab, ...defaultKeymap, ...historyKeymap]),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           skipNextExternal = true;

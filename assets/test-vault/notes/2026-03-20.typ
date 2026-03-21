@@ -40,6 +40,9 @@
     some text
   ],
   align(right)[
-    text aligned right with #xlink("programming")
+    text aligned right with #xlink("programming") \
+    adding #current-work[
+      some text
+    ]
   ]
 )
