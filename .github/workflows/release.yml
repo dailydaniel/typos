@@ -85,4 +85,5 @@ jobs:
           releaseBody: 'Download the installer for your platform below.'
           releaseDraft: true
           prerelease: false
+          includeUpdaterJson: false
           args: ${{ matrix.args }}
