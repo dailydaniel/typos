@@ -274,6 +274,7 @@ The user's `vault.typ` ties it together:
 
 ## Acknowledgements
 
+- [basalt](https://github.com/GabrielDTB/basalt-lib) — Typst Zettelkasten framework that inspired the vault, xlink, and backlinks architecture (GPL-3.0)
 - [Typst](https://github.com/typst/typst) — typesetting engine used for rendering and compilation (Apache-2.0)
 - [Tauri](https://github.com/tauri-apps/tauri) — desktop application framework (MIT or Apache-2.0)
 - [Tinymist](https://github.com/Myriad-Dreamin/tinymist) — Typst language server for autocompletion (Apache-2.0)
