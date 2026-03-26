@@ -8,7 +8,15 @@
 
 ---
 
-### Recent changes (v0.2.3)
+### Recent changes (v0.2.4)
+
+- **Dark mode** — warm "parchment at night" theme with syntax-aware editor colors, toggle in toolbar
+- **Welcome screen** — onboarding GUI for opening or creating vaults without CLI
+- **Cross-platform builds** — macOS (ARM + Intel), Linux (.deb, .AppImage), Windows (.exe)
+- **Compilation timeout** — 10s timeout prevents infinite loops from freezing the app
+- **Backlinks dedup** — duplicate backlinks from multiple references to the same note are removed
+
+### v0.2.3
 
 - **Tinymist LSP** — integrated Typst language server for autocompletion of built-in functions and parameters
 - **Editor improvements** — Tab/Shift-Tab indentation (2 spaces), auto-close brackets, smart Enter indent, toggle comments (Cmd+/)
@@ -59,9 +67,11 @@ A native desktop app built with Tauri 2, Svelte 5, and CodeMirror 6. Editor with
 
 | Platform | Download |
 |----------|----------|
-| macOS (Apple Silicon) | [typos_0.2.3_aarch64.zip](https://github.com/dailydaniel/typst-notes/releases/latest) |
-
-For other platforms, build from source (see below).
+| macOS (Apple Silicon) | [typos_0.2.4_aarch64.dmg](https://github.com/dailydaniel/typos/releases/latest) |
+| macOS (Intel) | [typos_0.2.4_x64.dmg](https://github.com/dailydaniel/typos/releases/latest) |
+| Linux (Debian/Ubuntu) | [typos_0.2.4_amd64.deb](https://github.com/dailydaniel/typos/releases/latest) |
+| Linux (AppImage) | [typos_0.2.4_amd64.AppImage](https://github.com/dailydaniel/typos/releases/latest) |
+| Windows | [typos_0.2.4_x64-setup.exe](https://github.com/dailydaniel/typos/releases/latest) |
 
 ### Prerequisites (building from source)
 
@@ -244,9 +254,9 @@ The user's `vault.typ` ties it together:
 - [x] **xlink-scope** — cross-link notes with inline property display
 - [x] **PDF preview** — pixel-perfect PDF preview with clickable links (pdf.js)
 - [x] **Tinymist LSP** — Typst language server for autocompletion of built-in functions
+- [x] **Dark mode** — warm "parchment at night" theme (UI + editor + preview)
+- [x] **Cross-platform** — macOS (ARM + Intel), Linux, Windows via GitHub Actions CI
 - [ ] **Topos** — rename vault to topos (τόπος) :)
 - [ ] **Programmatic compilation** — replace subprocess with `typst` Rust crate (World trait)
 - [ ] **Incremental indexing** — skip unchanged files based on mtime
-- [ ] **Dark preview** — dark theme for HTML preview (CSS injection into iframe)
-- [ ] **Dark mode** — full dark variant of the parchment palette (UI + editor + preview)
 - [ ] **iOS support** — via Tauri v2 mobile
