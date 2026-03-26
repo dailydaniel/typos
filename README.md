@@ -44,6 +44,11 @@ Instead of reinventing frontmatter parsers, Dataview-style query languages, and 
   <em>Programmable type system — define your note types in vault.typ</em>
 </p>
 
+<p align="center">
+  <img src="assets/screenshots/graph.png" alt="Knowledge graph" width="800"><br>
+  <em>Interactive knowledge graph visualization</em>
+</p>
+
 ## Architecture
 
 ```
