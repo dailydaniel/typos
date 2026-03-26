@@ -3,12 +3,14 @@
   import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from "@codemirror/view";
   import { EditorState, Compartment } from "@codemirror/state";
   import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
-  import { indentUnit, indentService, syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
+  import { indentUnit, indentService, syntaxHighlighting, defaultHighlightStyle, bracketMatching, HighlightStyle } from "@codemirror/language";
+  import { tags } from "@lezer/highlight";
   import { autocompletion } from "@codemirror/autocomplete";
   import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
   import { serverCompletionSource } from "@codemirror/lsp-client";
   import type { LSPClient } from "@codemirror/lsp-client";
   import { createNoteCompletion } from "./noteCompletion";
+  import { appState } from "./state.svelte";
   import type { NoteMetadata } from "./types";
 
   interface Props {
@@ -28,6 +30,36 @@
   let view: EditorView | undefined;
   let skipNextExternal = false;
   const vimCompartment = new Compartment();
+  const highlightCompartment = new Compartment();
+
+  const darkHighlightStyle = HighlightStyle.define([
+    { tag: tags.keyword, color: "#c4a882" },
+    { tag: tags.name, color: "#e8e2d9" },
+    { tag: tags.typeName, color: "#d4bc98" },
+    { tag: tags.propertyName, color: "#d4bc98" },
+    { tag: tags.string, color: "#a8c48a" },
+    { tag: tags.number, color: "#d4bc98" },
+    { tag: tags.bool, color: "#c4a882" },
+    { tag: tags.operator, color: "#9a918a" },
+    { tag: tags.punctuation, color: "#9a918a" },
+    { tag: tags.bracket, color: "#9a918a" },
+    { tag: tags.meta, color: "#c4a882" },
+    { tag: tags.comment, color: "#655d55" },
+    { tag: tags.function(tags.variableName), color: "#c4a882" },
+    { tag: tags.definition(tags.variableName), color: "#d4bc98" },
+    { tag: tags.labelName, color: "#a8c48a" },
+    { tag: tags.heading, color: "#e8e2d9", fontWeight: "bold" },
+    { tag: tags.emphasis, fontStyle: "italic" },
+    { tag: tags.strong, fontWeight: "bold" },
+    { tag: tags.link, color: "#c4a882", textDecoration: "underline" },
+    { tag: tags.url, color: "#a8c48a" },
+  ]);
+
+  function getHighlightExt() {
+    return appState.darkMode
+      ? syntaxHighlighting(darkHighlightStyle)
+      : syntaxHighlighting(defaultHighlightStyle);
+  }
 
   async function loadVimExtension(withCommands: boolean) {
     if (!vimMode) return [];
@@ -115,7 +147,7 @@
       history(),
       bracketMatching(),
       closeBrackets(),
-      syntaxHighlighting(defaultHighlightStyle),
+      highlightCompartment.of(getHighlightExt()),
       autocompletion({
         override: completionSources,
         activateOnTyping: true,
@@ -142,10 +174,10 @@
         }
       }),
       EditorView.theme({
-        "&": { height: "100%", fontSize: "14px" },
+        "&": { height: "100%", fontSize: "14px", backgroundColor: "var(--bg)", color: "var(--text)" },
         ".cm-scroller": { overflow: "auto", fontFamily: "var(--font-mono)" },
-        ".cm-content": { padding: "8px 0" },
-        ".cm-gutters": { borderRight: "1px solid var(--border)", background: "var(--bg-secondary)" },
+        ".cm-content": { padding: "8px 0", caretColor: "var(--text)" },
+        ".cm-gutters": { borderRight: "1px solid var(--border)", background: "var(--bg-secondary)", color: "var(--text-muted)" },
       }),
     ];
   }
@@ -196,6 +228,14 @@
   });
 
   $effect(() => {
+    const isDark = appState.darkMode;
+    if (!view) return;
+    view.dispatch({
+      effects: highlightCompartment.reconfigure(getHighlightExt()),
+    });
+  });
+
+  $effect(() => {
     const newContent = content;
     if (!view) return;
     if (skipNextExternal) {
@@ -226,23 +266,56 @@
     padding: 2px 8px;
     font-family: var(--font-mono);
     font-size: 12px;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border);
-    color: var(--text-secondary);
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid var(--border) !important;
+    color: var(--text-secondary) !important;
+  }
+  .editor-container :global(.cm-panels) {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid var(--border) !important;
+  }
+  .editor-container :global(.cm-panels-bottom) {
+    border-top: 1px solid var(--border) !important;
   }
   /* Selection */
   .editor-container :global(.cm-selectionBackground) {
-    background: rgba(92, 74, 58, 0.18) !important;
+    background: var(--selection) !important;
   }
   .editor-container :global(.cm-editor.cm-focused .cm-selectionBackground) {
-    background: rgba(92, 74, 58, 0.22) !important;
+    background: var(--selection-focus) !important;
   }
   .editor-container :global(.cm-content ::selection) {
-    background: rgba(92, 74, 58, 0.22);
+    background: var(--selection-focus);
   }
   /* Vim cursor in normal mode */
   .editor-container :global(.cm-fat-cursor) {
-    background: rgba(44, 40, 37, 0.7) !important;
-    color: var(--surface) !important;
+    background: var(--accent) !important;
+    color: var(--bg) !important;
+    opacity: 0.7;
+  }
+  /* Editor text color */
+  .editor-container :global(.cm-editor) {
+    color: var(--text);
+    background: var(--bg);
+  }
+  .editor-container :global(.cm-line) {
+    color: var(--text);
+  }
+  .editor-container :global(.cm-lineNumbers .cm-gutterElement) {
+    color: var(--text-muted);
+  }
+  .editor-container :global(.cm-activeLineGutter) {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+  }
+  .editor-container :global(.cm-activeLine) {
+    background: var(--selection);
+  }
+  .editor-container :global(.cm-cursor) {
+    border-left-color: var(--text);
+  }
+  .editor-container :global(.cm-matchingBracket) {
+    background: var(--selection-focus);
+    color: var(--accent) !important;
   }
 </style>

@@ -339,6 +339,7 @@
   });
 
   onMount(() => {
+    appState.initTheme();
     document.addEventListener("keydown", onKeydown);
     window.addEventListener("beforeunload", stopLsp);
     // Auto-open last vault

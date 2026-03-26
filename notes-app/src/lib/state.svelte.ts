@@ -3,6 +3,7 @@ import type { VaultInfo, VaultTypeInfo, NoteMetadata } from "./types";
 const STARRED_KEY = "typos-starred";
 const LAST_VAULT_KEY = "typos-last-vault";
 const RECENT_VAULTS_KEY = "typos-recent-vaults";
+const DARK_MODE_KEY = "typos-dark-mode";
 const VIM_MODE_KEY = "typos-vim-mode";
 const PREVIEW_FORMAT_KEY = "typos-preview-format";
 
@@ -68,6 +69,19 @@ export class AppState {
   }
 
   starredNotes = $derived(this.notes.filter((n) => this._starredIds.has(n.id)));
+
+  // --- Dark mode ---
+  darkMode = $state(localStorage.getItem(DARK_MODE_KEY) === "true");
+
+  toggleDarkMode() {
+    this.darkMode = !this.darkMode;
+    localStorage.setItem(DARK_MODE_KEY, String(this.darkMode));
+    document.documentElement.setAttribute("data-theme", this.darkMode ? "dark" : "light");
+  }
+
+  initTheme() {
+    document.documentElement.setAttribute("data-theme", this.darkMode ? "dark" : "light");
+  }
 
   // --- Vim mode ---
   vimMode = $state(localStorage.getItem(VIM_MODE_KEY) === "true");

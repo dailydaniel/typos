@@ -26,6 +26,16 @@
 
   // --- HTML mode ---
 
+  const darkPreviewCss = `<style>
+    html { background: #262220; color: #e8e2d9; }
+    body { background: #262220; color: #e8e2d9; }
+    a { color: #c4a882; }
+    hr { border-color: #3d3732; }
+    code, pre { background: #302b27; color: #e8e2d9; }
+    table, th, td { border-color: #3d3732; }
+    th { background: #302b27; }
+  </style>`;
+
   const previewHtml = $derived(() => {
     if (!appState.previewHtml || appState.previewFormat !== "html") return "";
     const script = `<script>
@@ -37,7 +47,8 @@
         window.parent.postMessage({ type: 'note-link', href: href }, '*');
       });
     <\/script>`;
-    return appState.previewHtml + script;
+    const dark = appState.darkMode ? darkPreviewCss : "";
+    return dark + appState.previewHtml + script;
   });
 
   function onMessage(e: MessageEvent) {
@@ -173,7 +184,7 @@
           sandbox="allow-same-origin allow-scripts"
         ></iframe>
       {:else}
-        <div class="pdf-container" bind:this={pdfContainer}></div>
+        <div class="pdf-container" class:pdf-dark={appState.darkMode} bind:this={pdfContainer}></div>
       {/if}
     {:else}
       <div class="empty">No preview available</div>
@@ -225,6 +236,9 @@
     opacity: 1;
     background: rgba(255, 255, 0, 0.15);
     border-radius: 2px;
+  }
+  .pdf-dark :global(canvas) {
+    filter: invert(0.88) hue-rotate(180deg);
   }
   .loading, .empty {
     padding: 24px;
