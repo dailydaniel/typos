@@ -87,3 +87,38 @@ jobs:
           prerelease: false
           includeUpdaterJson: false
           args: ${{ matrix.args }}
+
+      - name: Patch AppImage - remove bundled libwayland-client.so
+        if: matrix.platform == 'ubuntu-22.04'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get version from tauri.conf.json
+          VERSION=$(grep '"version"' notes-app/src-tauri/tauri.conf.json | head -1 | sed 's/.*"\([0-9.]*\)".*/\1/')
+          APPIMAGE_NAME="typos_${VERSION}_amd64.AppImage"
+          TAG="v${VERSION}"
+
+          # Download the AppImage from draft release
+          gh release download "$TAG" --pattern "$APPIMAGE_NAME" --dir .
+
+          # Install appimagetool (extract it since FUSE is not available in CI)
+          wget -q "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage" -O appimagetool
+          chmod +x appimagetool
+          ./appimagetool --appimage-extract
+          mv squashfs-root appimagetool-dir
+
+          # Extract the AppImage
+          chmod +x "$APPIMAGE_NAME"
+          ./"$APPIMAGE_NAME" --appimage-extract
+
+          # Remove bundled libwayland-client (causes EGL conflicts on Wayland)
+          rm -fv squashfs-root/usr/lib/libwayland-client.so*
+
+          # Repack
+          ./appimagetool-dir/AppRun squashfs-root/ "$APPIMAGE_NAME"
+
+          # Re-upload patched AppImage (overwrite original)
+          gh release upload "$TAG" "$APPIMAGE_NAME" --clobber
+
+          # Clean up
+          rm -rf squashfs-root appimagetool appimagetool-dir
