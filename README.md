@@ -52,7 +52,7 @@ Instead of reinventing frontmatter parsers, Dataview-style query languages, and 
 ## Architecture
 
 ```
-typst-notes/
+typos/
 ├── notes-app/          Tauri desktop app (Svelte + CodeMirror)
 ├── notes-core/         Rust library (AST parsing, indexing, compilation)
 ├── notes-cli/          CLI binary wrapping notes-core
